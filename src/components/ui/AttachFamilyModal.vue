@@ -1,7 +1,7 @@
 //AttachFamilyModal.vue
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue';
-import AddFamilyButton from './AddFamilyButton.vue'
+import { defineEmits, defineProps, ref } from 'vue';
+import AddDeductButton from './AddDeductButton.vue'
 
 interface Member {
   id: string;
@@ -20,8 +20,9 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['attachFamily', 'viewContacts', 'createFamily']);
+const emit = defineEmits(['attachFamily', 'viewContacts', 'createFamily', 'modal-close']);
 
+const contentRef = ref<HTMLDivElement>();
 function handleAttachFamily(familyId: string) {
   emit('attachFamily', familyId);
 }
@@ -33,17 +34,26 @@ function handleViewContacts(memberId: string) {
 function handleCreateFamily() {
   emit('createFamily', props.newFamilyId);
 }
+
+function closeModal(e: any) {
+  const closeButton = e.target.closest('[data-close="true"]');
+  if (closeButton || e.target === e.currentTarget) {
+    emit('modal-close');
+  }
+}
 </script>
 
 <template>
-  <div :id="'attach-family-modal-' + props.newFamilyId" class="modal-overlay">
+  <div :id="'attach-family-modal-' + props.newFamilyId" class="modal-overlay" @mousedown="closeModal">
     <div class="modal-content">
       <div class="title-wrapper">
         <h1 class="title">Семьи</h1>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 6L6 18M6 6L18 18" stroke="#A0ADBD" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
+        <div id="close-modal-button" class="close-modal-container" data-close="true" @mousedown="closeModal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="#A0ADBD" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
       </div>
       <div class="search-wrapper">
         <div class="search-input">
@@ -63,7 +73,20 @@ function handleCreateFamily() {
           </svg>
           <input type="text" name="family-search" placeholder="Поиск по семьям" />
         </div>
-        <button id="create-family" @click="handleCreateFamily">+ Создать новую</button>
+        <button id="create-family" @click="handleCreateFamily"><svg width="18" height="18" viewBox="0 0 18 18"
+            fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_31820_1756)">
+              <path d="M2.8125 9H15.1875" stroke="white" stroke-width="1.125" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M9 2.8125V15.1875" stroke="white" stroke-width="1.125" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </g>
+            <defs>
+              <clipPath id="clip0_31820_1756">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+            </defs>
+          </svg> <span>Создать новую</span></button>
       </div>
       <div :id="'family-list-' + props.newFamilyId" class="family-list">
         <div v-for="(family) in props.families" :key="family.idFamily" class="family-item">
@@ -85,7 +108,7 @@ function handleCreateFamily() {
               </template>
             </div>
             <div class="add-family-button">
-              <AddFamilyButton title="+ Прикрепить" :limit="10" :loading="false"
+              <AddDeductButton type='add' title="Прикрепить" :limit="10" :loading="false"
                 @click="handleAttachFamily(family.idFamily)" />
             </div>
           </div>
@@ -108,6 +131,15 @@ function handleCreateFamily() {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+.close-modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  cursor: pointer;
+  z-index: 1
 }
 
 .modal-content {
@@ -183,6 +215,9 @@ function handleCreateFamily() {
 }
 
 #create-family {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #366AF3;
   color: #fff;
   border: none;
@@ -196,6 +231,10 @@ function handleCreateFamily() {
   line-height: 20px;
   font-family: 'PT Sans', sans-serif;
   padding: 0;
+
+  span {
+    padding-left: 6px;
+  }
 }
 
 #create-family:hover {

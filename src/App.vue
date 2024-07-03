@@ -1,22 +1,11 @@
 //App.vue
-<template>
-  <div class="wrapper" v-if="isAddButton">
-    <AddFamilyButton @click="onClickToContactsCard" title="Открыть Контакта Карточку" :limit="1200" :loading="false" />
-  </div>
-  <div class="wrapper" v-if="isAddButton">
-    <AddFamilyButton @click="onClickToSettings" title="Открыть Настройки Виджета" :limit="1200" :loading="false" />
-  </div>
-  <SettingsModule v-if="isSettings" :newFamilyId="newFamilyId" />
-  <ContactsModule v-if="isContactsModule" :newFamilyId="newFamilyId" />
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
-import AddFamilyButton from './components/ui/AddFamilyButton.vue'
-import SettingsModule from './components/SettingsModule.vue'
+import AddDeductButton from './components/ui/AddDeductButton.vue'
+// import SettingsModule from './components/SettingsModule.vue'
 import ContactsModule from './components/ContactsModule.vue'
 
-const newFamilyId = ref('10');
+const newFamilyId = ref('123456');
 const isAddButton = ref(true)
 const isContactsModule = ref(false)
 const isSettings = ref(false)
@@ -30,6 +19,19 @@ function onClickToSettings() {
   isAddButton.value = false;
 }
 </script>
+
+<template>
+  <div class="wrapper" v-if="isAddButton">
+    <AddDeductButton @click="onClickToContactsCard" type='add' title="Открыть Контакта Карточку" :limit="1200"
+      :loading="false" />
+  </div>
+  <div class="wrapper" v-if="isAddButton">
+    <AddDeductButton @click="onClickToSettings" type='add' title="Открыть Настройки Виджета" :limit="1200"
+      :loading="false" />
+  </div>
+  <!-- <SettingsModule v-if="isSettings" :newFamilyId="newFamilyId" /> -->
+  <ContactsModule v-if="isContactsModule" :newFamilyId="newFamilyId" />
+</template>
 
 <style lang="scss">
 #app {
