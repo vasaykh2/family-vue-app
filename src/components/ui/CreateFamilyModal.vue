@@ -1,6 +1,6 @@
 //AttachFamilyModal.vue
 <script setup lang="ts">
-import { defineEmits, defineProps, ref } from 'vue';
+import { defineEmits, defineProps, withDefaults, ref } from 'vue';
 import AddDeductButton from './AddDeductButton.vue'
 
 interface Member {
@@ -16,19 +16,21 @@ interface Family {
 
 interface IProps {
   families: Family[];
-  newFamilyId: string;
+  idFamily: string;
+  title: string;
 }
 
-const props = defineProps<IProps>();
+const props = withDefaults(defineProps<IProps>(), {
+  title: 'Прикрепить'
+});
 const emit = defineEmits(['attachFamily', 'modal-close']);
 
-const contentRef = ref<HTMLDivElement>();
 const countLimit = 20;
 const parentsFirst: {
   id: string;
   name: string;
 }[] = [];
-const childrenFirst = [{ name: 'Masha', id: `${props.newFamilyId}-1` }];
+const childrenFirst = [{ name: 'Masha', id: `${props.idFamily}-1` }];
 const membersFirst = parentsFirst.concat(childrenFirst);
 console.log(membersFirst)
 // const members = ref(membersFirst);
@@ -42,12 +44,16 @@ const childSearch = ref('');
 const countForId = ref(0);
 
 function handleAttachFamily() {
-  emit('attachFamily', props.newFamilyId);
+  if (props.title === 'Новая семья') {
+    console.log('Новая семья')
+  }
+  // ДОБАВИТЬ ОБРАБОТКУ families
+  emit('attachFamily', props.idFamily);
 }
 
 function handleCreateMember(memberType: string, name: string) {
   countForId.value++
-  const id = `${props.newFamilyId}-${countForId.value}`;
+  const id = `${props.idFamily}-${countForId.value}`;
   if (memberType === 'parent') {
     parents.value.push({ name, id });
     parentSearch.value = '';
@@ -79,12 +85,12 @@ function closeModal(e: any) {
 </script>
 
 <template>
-  <div :id="'create-family-modal-' + props.newFamilyId" class="modal-overlay" @mousedown="closeModal">
+  <div :id="'create-family-modal-' + props.idFamily" class="modal-overlay" @mousedown="closeModal">
     <div class="modal-content">
       <div class="title-wrapper">
         <div>
-          <h1 class="title">Новая семья</h1>
-          <p class="description-title">ID <span>{{ props.newFamilyId }}</span></p>
+          <h1 class="title">{{ title }}</h1>
+          <p class="description-title">ID <span>{{ props.idFamily }}</span></p>
         </div>
         <div id="close-modal-button" class="close-modal-container" data-close="true" @mousedown="closeModal">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -136,7 +142,7 @@ function closeModal(e: any) {
           <div class="member-family-block" v-for="(member) in parents" :key="member.id">
             <div class="member">
               <p class="member-name">{{ member.name }}</p>
-              <p class="id-family-block">ID <span>{{ props.newFamilyId }}</span></p>
+              <p class="id-family-block">ID <span>{{ props.idFamily }}</span></p>
             </div>
             <div class="deduct-family-button">
               <AddDeductButton type='deduct' title="Открепить" :limit="1200" :loading="false"
@@ -195,7 +201,7 @@ function closeModal(e: any) {
           <div class="member-family-block" v-for="(member) in children" :key="member.id">
             <div class="member">
               <p class="member-name">{{ member.name }}</p>
-              <p class="id-family-block">ID <span>{{ props.newFamilyId }}</span></p>
+              <p class="id-family-block">ID <span>{{ props.idFamily }}</span></p>
             </div>
             <div class="deduct-family-button">
               <AddDeductButton type='deduct' title="Открепить" :limit="1200" :loading="false"
@@ -212,8 +218,10 @@ function closeModal(e: any) {
         </div>
       </div>
       <div class="wrapper-attach-family" v-if="children.length > 0 && parents.length > 0">
-        <button id="attach-family" class="attach-family" @click="handleAttachFamily"><svg width="18" height="18"
-            viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <button id="attach-family" class="attach-family" :class="title === 'Новая семья' ? '' : 'deduct'"
+          @click="handleAttachFamily">
+          <svg v-if="title === 'Новая семья'" width="18" height="18" viewBox="0 0 18 18" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_31820_1756)">
               <path d="M2.8125 9H15.1875" stroke="white" stroke-width="1.125" stroke-linecap="round"
                 stroke-linejoin="round" />
@@ -225,7 +233,20 @@ function closeModal(e: any) {
                 <rect width="18" height="18" fill="white" />
               </clipPath>
             </defs>
-          </svg> <span>Прикрепить семью</span>
+          </svg>
+          <svg v-if="title !== 'Новая семья'" width="18" height="18" viewBox="0 0 18 18" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_31846_1982)">
+              <path d="M2.8125 9H15.1875" stroke="#FF8484" stroke-width="1.125" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </g>
+            <defs>
+              <clipPath id="clip0_31846_1982">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+          <span>{{ props.title === 'Новая семья' ? 'Прикрепить семью' : 'Открепить семью' }}</span>
         </button>
       </div>
     </div>
@@ -552,6 +573,16 @@ function closeModal(e: any) {
 
   .attach-family:hover {
     background-color: #0069d9;
+  }
+
+  .attach-family.deduct {
+    background-color: #EBEBEB;
+    color: #000;
+
+  }
+
+  .attach-family.deduct:hover {
+    background-color: #E5E5E5;
   }
 
 }

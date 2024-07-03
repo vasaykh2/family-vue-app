@@ -6,6 +6,7 @@ import AddDeductButton from './components/ui/AddDeductButton.vue'
 import ContactsModule from './components/ContactsModule.vue'
 
 const newFamilyId = ref('123456');
+const chosenFamilyId = ref('654321');
 const isAddButton = ref(true)
 const isContactsModule = ref(false)
 const isSettings = ref(false)
@@ -30,7 +31,7 @@ function onClickToSettings() {
       :loading="false" />
   </div>
   <!-- <SettingsModule v-if="isSettings" :newFamilyId="newFamilyId" /> -->
-  <ContactsModule v-if="isContactsModule" :newFamilyId="newFamilyId" />
+  <ContactsModule v-if="isContactsModule" :newFamilyId="newFamilyId" :chosenFamilyId="chosenFamilyId" />
 </template>
 
 <style lang="scss">
