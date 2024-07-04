@@ -13,23 +13,32 @@ const props = withDefaults(defineProps<IProps>(), {
   role: 'Ребёнок',
   name: 'Иван Иванов',
 });
-const emit = defineEmits(['handle-act', 'modal-close']);
+const emit = defineEmits(['handle-act', 'notification-close']);
 const inputValue = ref(props.name);
-console.log('inputValue', inputValue.value)
+
+function handleInput(event: any) {
+  // console.log('event.target.value', event.target.value)
+  inputValue.value = event.target.value;
+}
+
 function handleAct() {
-  emit('handle-act')
+  // console.log('NotificationModal', inputValue.value)
+  if (inputValue.value.length) {
+    emit('handle-act', inputValue.value)
+  }
 }
 
 function closeModal(e: any) {
+  e.stopPropagation();
   const closeButton = e.target.closest('[data-close="true"]');
   if (closeButton || e.target === e.currentTarget) {
-    emit('modal-close');
+    emit('notification-close');
   }
 }
 </script>
 
 <template>
-  <div id="notification-modal" class="modal-overlay" @mousedown="closeModal">
+  <div id="notification-modal" class="modal-overlay" @click="closeModal">
     <div class="modal-content">
       <div class="title-wrapper">
         <div>
@@ -49,10 +58,14 @@ function closeModal(e: any) {
             }}</span>
         </p>
       </div>
-      <div class="search-wrapper">
-        <div class="search-input">
-          <input type="text" :value="inputValue" name="member-search" placeholder="Имя Фамилия" />
+      <div class="wrapper-search-wrapper">
+        <div class="search-wrapper">
+          <div class="search-input" :class="inputValue.length > 0 ? '' : 'red'">
+            <input type="text" :value="inputValue" @input="handleInput" name="member-search"
+              placeholder="Имя Фамилия" />
+          </div>
         </div>
+        <span v-if="!(inputValue.length > 0)" class="error">Введите значение</span>
       </div>
       <div class="wrapper-attach-family">
         <button id="attach-family" class="attach-family" :class="title === 'Новая семья' ? 'deduct' : ''"
@@ -94,7 +107,6 @@ function closeModal(e: any) {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   width: 320px;
-  height: 256px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -142,6 +154,22 @@ function closeModal(e: any) {
   }
 }
 
+.wrapper-search-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-starts;
+
+  .error {
+    font-family: 'PT Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 16px;
+    color: #FF8484;
+    text-align: start;
+    padding-top: 3px;
+  }
+}
+
 .search-wrapper {
   display: flex;
 }
@@ -159,6 +187,10 @@ function closeModal(e: any) {
   background-color: #F5F5F5;
   border: none;
   margin-right: 12px;
+}
+
+.search-input.red {
+  border: 1px solid #FF8484;
 }
 
 .search-input input {

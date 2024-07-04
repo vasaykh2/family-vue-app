@@ -1,4 +1,4 @@
-//AttachFamilyModal.vue
+//CreateFamilyModal.vue
 <script setup lang="ts">
 import { defineEmits, defineProps, withDefaults, ref, computed } from 'vue';
 import AddDeductButton from './AddDeductButton.vue'
@@ -80,14 +80,18 @@ function handleCreateMember(memberType: string, name: string) {
   updateMembers();
 }
 
-function onHandleAct() {
+function onHandleAct(inputValue: string) {
   isOpenNotificationModal.value = false;
   if (role.value === 'Родитель') {
+    // console.log(preparedMember.value.name)
+    preparedMember.value.name = inputValue;
+    // console.log(preparedMember.value.name)
     parents.value.push(preparedMember.value);
     parentSearch.value = '';
     countParents.value = parents.value.length;
   }
   if (role.value === 'Ребёнок') {
+    preparedMember.value.name = inputValue;
     children.value.push(preparedMember.value);
     childSearch.value = '';
     countChildren.value = children.value.length;
@@ -105,9 +109,16 @@ function updateMembers() {
 }
 
 function closeModal(e: any) {
+  e.stopPropagation();
   const closeButton = e.target.closest('[data-close="true"]');
   if (closeButton || e.target === e.currentTarget) {
     emit('modal-close');
+  }
+}
+
+function onModalClos(typeModal: string) {
+  if (typeModal === 'NotificationModal') {
+    isOpenNotificationModal.value = false;
   }
 }
 </script>
@@ -278,8 +289,8 @@ function closeModal(e: any) {
         </button>
       </div>
     </div>
-    <NotificationModal v-if="isOpenNotificationModal" @handle-act="onHandleAct()" :role="role" title="Новый контакт"
-      :name="searchValue" />
+    <NotificationModal v-if="isOpenNotificationModal" @handle-act="onHandleAct"
+      @notification-close="onModalClos('NotificationModal')" :role="role" title="Новый контакт" :name="searchValue" />
   </div>
 </template>
 
