@@ -53,6 +53,7 @@ const preparedMember = ref({
 const parentsForSearch = ref<Member[]>([]);
 const childrenForSearch = ref<Member[]>([]);
 const updatedFamilies = ref<Family[]>(props.families);
+const deductMemberId = ref('');
 
 function getFamily(families: Family[], idFamily: string) {
   return families.find(family => family.idFamily === idFamily);
@@ -136,23 +137,34 @@ function handleCreateMember(memberType: string, name: string) {
   searchValueRef.value = '';
   countValue.value = (isParent ? parents : children).value.length;
 
-  if (isEditFamily) {
-    onHandleAct(searchValue.value);
+  if (isEditFamily && searchValue.value.length > 0) {
+    console.log(role.value, searchValue.value)
+    onHandleAct({ type: 'deduct', role: role.value, inputValue: searchValue.value });
   }
 
   updateMembers();
 }
 
-function onHandleAct(inputValue: string) {
+function onHandleAct(message: { type: string; role: string; inputValue: string; }) {
   isOpenNotificationModal.value = false;
 
-  const isParent = role.value === 'Родитель';
+  const type = message.type;
+  const role = message.role;
+  const inputValue = message.inputValue;
+  const isParent = role === 'Родитель';
+  const isAttach = type === 'attach';
   const targetList = isParent ? parents : children;
   const searchValueRef = isParent ? parentSearch : childSearch;
   const countValue = isParent ? countParents : countChildren;
 
   preparedMember.value.name = inputValue;
+
   targetList.value.push(preparedMember.value);
+  if (!isAttach) {
+    parents.value = parents.value.filter(member => member.id !== deductMemberId.value);
+    children.value = children.value.filter(member => member.id !== deductMemberId.value);
+  }
+
   searchValueRef.value = '';
   countValue.value = targetList.value.length;
 
@@ -160,8 +172,14 @@ function onHandleAct(inputValue: string) {
 }
 
 function handleDeductMember(memberId: string) {
-  parents.value = parents.value.filter(member => member.id !== memberId);
-  children.value = children.value.filter(member => member.id !== memberId);
+  deductMemberId.value = memberId;
+  if (props.title === 'Новая семья') {
+    parents.value = parents.value.filter(member => member.id !== memberId);
+    children.value = children.value.filter(member => member.id !== memberId);
+  } else {
+    console.log('handleDeductMember')
+    isOpenNotificationModal.value = true;
+  }
   countParents.value = parents.value.length;
   countChildren.value = children.value.length;
 }
@@ -352,8 +370,8 @@ function onModalClos(typeModal: string) {
       </div>
     </div>
     <NotificationModal v-if="isOpenNotificationModal" @handle-act="onHandleAct"
-      @notification-close="onModalClos('NotificationModal')" :role="role"
-      :title="title === 'Новая семья' ? 'Новый контакт' : 'Открепить?'" :name="searchValue" />
+      @notification-close="onModalClos('NotificationModal')" :type="title === 'Новая семья' ? 'attach' : 'deduct'"
+      :role="role" :title="title === 'Новая семья' ? 'Новый контакт' : 'Открепить?'" :name="searchValue" />
   </div>
 </template>
 

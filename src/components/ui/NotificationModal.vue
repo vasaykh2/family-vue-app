@@ -3,12 +3,14 @@
 import { defineEmits, defineProps, withDefaults, ref } from 'vue';
 
 interface IProps {
+  type: 'attach' | 'deduct',
   role: string;
   title: string;
   name: string;
 }
 
 const props = withDefaults(defineProps<IProps>(), {
+  type: 'attach',
   title: 'Новый контакт',
   role: 'Ребёнок',
   name: 'Иван Иванов',
@@ -24,7 +26,8 @@ function handleInput(event: any) {
 function handleAct() {
   // console.log('NotificationModal', inputValue.value)
   if (inputValue.value.length) {
-    emit('handle-act', inputValue.value)
+    const message = { type: props.type, role: props.role, inputValue: inputValue.value }
+    emit('handle-act', message)
   }
 }
 
@@ -58,7 +61,7 @@ function closeModal(e: any) {
             }}</span>
         </p>
       </div>
-      <div class="wrapper-search-wrapper">
+      <div v-if="props.type === 'attach'" class="wrapper-search-wrapper">
         <div class="search-wrapper">
           <div class="search-input" :class="inputValue.length > 0 ? '' : 'red'">
             <input type="text" :value="inputValue" @input="handleInput" name="member-search"
@@ -67,10 +70,17 @@ function closeModal(e: any) {
         </div>
         <span v-if="!(inputValue.length > 0)" class="error">Введите значение</span>
       </div>
-      <div class="wrapper-attach-family">
-        <button id="attach-family" class="attach-family" :class="title === 'Новая семья' ? 'deduct' : ''"
-          @click="handleAct">
-          <span>{{ props.title === 'Новый контакт' ? 'Создать' : 'Открепить семью' }}</span>
+      <div v-if="props.type === 'attach'" class="wrapper-attach-family">
+        <button id="attach-family" class="attach-family" @click="handleAct">
+          <span>Создать</span>
+        </button>
+      </div>
+      <div v-if="props.type === 'deduct'" class="wrapper-deduct-family">
+        <button id="no-deduct-family" class="no-deduct-family" @click="closeModal">
+          <span>Нет</span>
+        </button>
+        <button id="yes-deduct-family" class="yes-deduct-family" @click="handleAct">
+          <span>Да</span>
         </button>
       </div>
     </div>
