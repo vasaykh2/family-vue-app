@@ -2,17 +2,18 @@
 <script setup lang="ts">
 import { defineEmits, defineProps, ref } from 'vue';
 import AddDeductButton from './AddDeductButton.vue'
+import { Member, Family } from '../../assets/interfaces/interfaces'
 
-interface Member {
-  id: string;
-  name: string;
-  type: string;
-}
+// interface Member {
+//   id: string;
+//   name: string;
+//   type: string;
+// }
 
-interface Family {
-  idFamily: string;
-  members: Member[];
-}
+// interface Family {
+//   idFamily: string;
+//   members: Member[];
+// }
 
 interface IProps {
   families: Family[];
@@ -89,7 +90,7 @@ function closeModal(e: any) {
           </svg> <span>Создать новую</span></button>
       </div>
       <div :id="'family-list-' + props.newFamilyId" class="family-list">
-        <div v-for="(family) in props.families" :key="family.idFamily" class="family-item">
+        <div v-for="family in props.families" :key="family.idFamily" class="family-item">
           <div class="family-info">
             <div class="parent">
               <h3>Родители</h3>

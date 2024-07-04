@@ -5,6 +5,7 @@ import AddDeductButton from './ui/AddDeductButton.vue'
 import AttachFamilyModal from './ui/AttachFamilyModal.vue'
 import familiesData from '../assets/families.json'
 import CreateFamilyModal from './ui/CreateFamilyModal.vue'
+import { Member, Family } from '../assets/interfaces/interfaces'
 
 interface IProps {
   newFamilyId: string,
@@ -14,7 +15,18 @@ interface IProps {
 const props = defineProps<IProps>();
 // const emit = defineEmits(['attachFamily', 'viewContacts', 'createFamily']);
 
-const families = ref(familiesData.families);
+// const formattedFamilies: Families = {
+//   families: familiesData.families.map(family => ({
+//     idFamily: family.idFamily,
+//     members: family.members.map(member => ({
+//       id: member.id,
+//       name: member.name,
+//       type: member.type
+//     }))
+//   }))
+// };
+
+const families = ref<Family[]>(familiesData.families);
 const newFamilyId = ref(props.newFamilyId);
 const chosenFamilyId = ref(props.chosenFamilyId);
 
@@ -30,8 +42,11 @@ function onClickEditFamilyButton(familyId: string) {
   isOpenEditFamilyModal.value = true;
 }
 
-function onAttachFamily(familyId: string) {
-  console.log('Family attached:', familyId);
+function onAttachFamily(updatedFamilies: Family[]) {
+  isOpenCreateFamilyModal.value = false;
+  isOpenAttachFamilyModal.value = false;
+  families.value = updatedFamilies;
+  console.log('Family attached:', updatedFamilies);
   // логика для прикрепления семьи
 }
 
