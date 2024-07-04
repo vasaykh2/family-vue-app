@@ -1,7 +1,8 @@
 //AttachFamilyModal.vue
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, ref } from 'vue';
+import { defineEmits, defineProps, withDefaults, ref, computed } from 'vue';
 import AddDeductButton from './AddDeductButton.vue'
+import NotificationModal from './NotificationModal.vue'
 
 interface Member {
   id: string;
@@ -42,6 +43,13 @@ const members = ref(parents.value.concat(children.value));
 const parentSearch = ref('');
 const childSearch = ref('');
 const countForId = ref(0);
+const isOpenNotificationModal = ref(false);
+const role = ref('Ребёнок');
+const searchValue = ref('');
+const preparedMember = ref({
+  id: '',
+  name: ''
+});
 
 function handleAttachFamily() {
   if (props.title === 'Новая семья') {
@@ -52,17 +60,37 @@ function handleAttachFamily() {
 }
 
 function handleCreateMember(memberType: string, name: string) {
+  isOpenNotificationModal.value = true;
   countForId.value++
   const id = `${props.idFamily}-${countForId.value}`;
   if (memberType === 'parent') {
-    parents.value.push({ name, id });
+    preparedMember.value = { name, id };
+    role.value = 'Родитель';
+    searchValue.value = parentSearch.value;
     parentSearch.value = '';
     countParents.value++;
   }
   if (memberType === 'child') {
-    children.value.push({ name, id });
+    preparedMember.value = { name, id };
+    role.value = 'Ребёнок';
+    searchValue.value = childSearch.value;
     childSearch.value = '';
     countChildren.value++;
+  }
+  updateMembers();
+}
+
+function onHandleAct() {
+  isOpenNotificationModal.value = false;
+  if (role.value === 'Родитель') {
+    parents.value.push(preparedMember.value);
+    parentSearch.value = '';
+    countParents.value = parents.value.length;
+  }
+  if (role.value === 'Ребёнок') {
+    children.value.push(preparedMember.value);
+    childSearch.value = '';
+    countChildren.value = children.value.length;
   }
   updateMembers();
 }
@@ -250,6 +278,8 @@ function closeModal(e: any) {
         </button>
       </div>
     </div>
+    <NotificationModal v-if="isOpenNotificationModal" @handle-act="onHandleAct()" :role="role" title="Новый контакт"
+      :name="searchValue" />
   </div>
 </template>
 
