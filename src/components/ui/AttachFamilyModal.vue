@@ -4,17 +4,6 @@ import { defineEmits, defineProps, ref } from 'vue';
 import AddDeductButton from './AddDeductButton.vue'
 import { Member, Family } from '../../assets/interfaces/interfaces'
 
-// interface Member {
-//   id: string;
-//   name: string;
-//   type: string;
-// }
-
-// interface Family {
-//   idFamily: string;
-//   members: Member[];
-// }
-
 interface IProps {
   families: Family[];
   newFamilyId: string;

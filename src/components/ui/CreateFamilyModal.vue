@@ -131,6 +131,12 @@ function handleAttachFamily() {
 function handleCreateMember(memberType: string, name: string) {
   const isParent = memberType === 'parent';
   const isChild = memberType === 'child';
+
+  if (!isParent && !isChild) {
+    console.error('Invalid member type');
+    return;
+  }
+
   const isNewFamily = props.title === 'Новая семья';
   const isEditFamily = props.title === 'Редактирование семьи';
   const countValue = isParent ? countParents : countChildren;
@@ -145,6 +151,7 @@ function handleCreateMember(memberType: string, name: string) {
   if (isNewFamily) {
     isOpenNotificationModal.value = true;
   }
+
   countForId.value++;
   const id = `${props.idFamily}-${countForId.value}`;
   role.value = roleValue;
@@ -154,7 +161,6 @@ function handleCreateMember(memberType: string, name: string) {
   countValue.value = (isParent ? parents : children).value.length;
 
   if (isEditFamily && searchValue.value.length > 0) {
-    // console.log(role.value, searchValue.value)
     onHandleAct({ type: 'deduct', role: role.value, inputValue: searchValue.value });
   }
 
@@ -163,10 +169,8 @@ function handleCreateMember(memberType: string, name: string) {
 
 function onHandleAct(message: { type: string; role: string; inputValue: string; }) {
   isOpenNotificationModal.value = false;
-  // console.log('in CreateFamilyModal on onHandleAct', message.type, message.role, message.inputValue, deductMemberId.value)
-  const type = message.type;
-  const role = message.role;
-  const inputValue = message.inputValue;
+
+  const { type, role, inputValue } = message;
   const isParent = role === 'Родитель';
   const isAttach = type === 'attach';
   const targetList = isParent ? parents : children;
@@ -176,37 +180,24 @@ function onHandleAct(message: { type: string; role: string; inputValue: string; 
   if (!inputValue.includes('FROM DEDUCT ON EDIT MODAL')) {
     preparedMember.value.name = inputValue;
     targetList.value.push(preparedMember.value);
+
     if (!isAttach && parents.value.length > 0 && children.value.length > 0) {
-      // console.log('preparedMember', preparedMember.value)
       const newFamily = createFamily(props.idFamily, parents.value, children.value);
-      // const clearedFamilies = updatedFamilies.value.filter(family => family.idFamily !== props.idFamily)
-      // updatedFamilies.value = [...clearedFamilies, newFamily];
-      // ОБНОВЛЯЕМ families
       emit('attachFamily', newFamily);
     }
   }
 
   if (!isAttach) {
-    if (parents.value.length > 1 && children.value.length > 1) {
+    if (parents.value.length > 1 || children.value.length > 1) {
       parents.value = parents.value.filter(member => member.id !== deductMemberId.value);
       children.value = children.value.filter(member => member.id !== deductMemberId.value);
     }
-    if (parents.value.length > 1 && children.value.length === 1) {
-      parents.value = parents.value.filter(member => member.id !== deductMemberId.value);
-    }
-    if (parents.value.length === 1 && children.value.length > 1) {
-      children.value = children.value.filter(member => member.id !== deductMemberId.value);
-    }
+
     const newFamily = createFamily(props.idFamily, parents.value, children.value);
-    // const clearedFamilies = updatedFamilies.value.filter(family => family.idFamily !== props.idFamily)
-    // updatedFamilies.value = [...clearedFamilies, newFamily];
-    if (deductFamily.value) {
-      // updatedFamilies.value = clearedFamilies 
-      emit('deductFamily', props.idFamily);
-    }
-    // ОБНОВЛЯЕМ families
     emit('attachFamily', newFamily);
+
     if (deductFamily.value) {
+      emit('deductFamily', props.idFamily);
       deductFamily.value = false;
       emit('modal-close');
     }
@@ -220,14 +211,15 @@ function onHandleAct(message: { type: string; role: string; inputValue: string; 
 
 function handleDeductMember(memberId: string, name: string) {
   deductMemberId.value = memberId;
+
   if (props.title === 'Новая семья') {
     parents.value = parents.value.filter(member => member.id !== memberId);
     children.value = children.value.filter(member => member.id !== memberId);
   } else {
-    // console.log('handleDeductMember in CreateFamilyModal <--> edit')
-    nameNotificationDeduct.value = name + 'FROM DEDUCT ON EDIT MODAL';
+    nameNotificationDeduct.value = `${name} FROM DEDUCT ON EDIT MODAL`;
     isOpenNotificationModal.value = true;
   }
+
   countParents.value = parents.value.length;
   countChildren.value = children.value.length;
 }
@@ -244,7 +236,7 @@ function closeModal(e: any) {
   }
 }
 
-function onModalClos(typeModal: string) {
+function onModalClose(typeModal: string) {
   if (typeModal === 'NotificationModal') {
     isOpenNotificationModal.value = false;
   }
@@ -418,7 +410,7 @@ function onModalClos(typeModal: string) {
       </div>
     </div>
     <NotificationModal v-if="isOpenNotificationModal" @handle-act="onHandleAct"
-      @notification-close="onModalClos('NotificationModal')" :type="title === 'Новая семья' ? 'attach' : 'deduct'"
+      @notification-close="onModalClose('NotificationModal')" :type="title === 'Новая семья' ? 'attach' : 'deduct'"
       :role="role" :title="title === 'Новая семья' ? 'Новый контакт' : 'Открепить?'"
       :name="title === 'Новая семья' ? searchValue : deductFamily ? 'deductFamily' : nameNotificationDeduct" />
   </div>

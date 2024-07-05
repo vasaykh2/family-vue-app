@@ -40,7 +40,6 @@ function onAttachFamily(updatedFamily: Family) {
   isOpenAttachFamilyModal.value = false;
   chosenFamilyId.value = updatedFamily.idFamily;
   attachFamily.value = updatedFamily
-  // families.value = updatedFamilies;
   console.log('Family attach', updatedFamily);
 }
 
@@ -52,7 +51,6 @@ function onDeductFamily(idFamily: string) {
 
 function onViewContacts(memberId: string) {
   console.log('View contacts for member:', memberId);
-  // логика для просмотра контактов члена семьи
 }
 
 function onCreateFamily(idFamily: string) {
@@ -60,7 +58,7 @@ function onCreateFamily(idFamily: string) {
   isOpenCreateFamilyModal.value = true;
 }
 
-function onModalClos(typeModal: string) {
+function onModalClose(typeModal: string) {
   if (typeModal === 'AttachFamilyModal') {
     isOpenAttachFamilyModal.value = false;
   }
@@ -83,12 +81,12 @@ function onModalClos(typeModal: string) {
 
   <AttachFamilyModal v-if="isOpenAttachFamilyModal" title="+ Добавить семью" :families="families"
     :newFamilyId="newFamilyId" @attachFamily="onAttachFamily" @viewContacts="onViewContacts"
-    @createFamily="onCreateFamily" @modal-close="onModalClos('AttachFamilyModal')" />
+    @createFamily="onCreateFamily" @modal-close="onModalClose('AttachFamilyModal')" />
   <CreateFamilyModal v-if="isOpenCreateFamilyModal" title="Новая семья" :families="families" :idFamily="newFamilyId"
-    @attachFamily="onAttachFamily" @modal-close="onModalClos('CreateFamilyModal')" />
+    @attachFamily="onAttachFamily" @modal-close="onModalClose('CreateFamilyModal')" />
   <CreateFamilyModal v-if="isOpenEditFamilyModal" title="Редактирование семьи" :families="families"
     :idFamily="chosenFamilyId" @attachFamily="onAttachFamily" @deductFamily="onDeductFamily"
-    @modal-close="onModalClos('EditFamilyModal')" />
+    @modal-close="onModalClose('EditFamilyModal')" />
 </template>
 
 <style lang="scss">

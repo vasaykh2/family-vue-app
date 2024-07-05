@@ -6,7 +6,6 @@ import spinner from '@/assets/images/Spinner.svg'
 interface IProps {
   type: 'add' | 'deduct' | 'edit' | 'text',
   title: string,
-  // subtitle: string,
   limit: number,
   loading: boolean
 }
@@ -14,7 +13,6 @@ interface IProps {
 const emit = defineEmits(['click'])
 const props = withDefaults(defineProps<IProps>(), {
   title: 'Прикрепить',
-  // subtitle: '+'
 })
 const isLimit = ref(props.limit > 0)
 const isLoading = ref(props.loading)

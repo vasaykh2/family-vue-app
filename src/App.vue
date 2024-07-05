@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AddDeductButton from './components/ui/AddDeductButton.vue'
-// import SettingsModule from './components/SettingsModule.vue'
 import ContactsModule from './components/ContactsModule.vue'
 
 const newFamilyId = ref('123456');
