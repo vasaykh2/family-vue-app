@@ -13,18 +13,6 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-// const emit = defineEmits(['attachFamily', 'viewContacts', 'createFamily']);
-
-// const formattedFamilies: Families = {
-//   families: familiesData.families.map(family => ({
-//     idFamily: family.idFamily,
-//     members: family.members.map(member => ({
-//       id: member.id,
-//       name: member.name,
-//       type: member.type
-//     }))
-//   }))
-// };
 
 const families = ref<Family[]>(familiesData.families);
 const newFamilyId = ref(props.newFamilyId);
@@ -34,6 +22,11 @@ const isOpenAttachFamilyModal = ref(false);
 const isOpenCreateFamilyModal = ref(false);
 const isOpenEditFamilyModal = ref(false);
 
+const attachFamily = ref<Family>({
+  idFamily: '', members: []
+
+})
+
 function onClickAddFamilyButton(familyId: string) {
   isOpenAttachFamilyModal.value = true;
 }
@@ -42,12 +35,19 @@ function onClickEditFamilyButton(familyId: string) {
   isOpenEditFamilyModal.value = true;
 }
 
-function onAttachFamily(updatedFamilies: Family[]) {
+function onAttachFamily(updatedFamily: Family) {
   isOpenCreateFamilyModal.value = false;
   isOpenAttachFamilyModal.value = false;
-  families.value = updatedFamilies;
-  console.log('Family attached:', updatedFamilies);
-  // логика для прикрепления семьи
+  chosenFamilyId.value = updatedFamily.idFamily;
+  attachFamily.value = updatedFamily
+  // families.value = updatedFamilies;
+  console.log('Family attach', updatedFamily);
+}
+
+function onDeductFamily(idFamily: string) {
+  isOpenCreateFamilyModal.value = false;
+  isOpenAttachFamilyModal.value = false;
+  console.log('Family deduct', idFamily);
 }
 
 function onViewContacts(memberId: string) {
@@ -56,7 +56,7 @@ function onViewContacts(memberId: string) {
 }
 
 function onCreateFamily(idFamily: string) {
-  console.log('Create family with id:', idFamily);
+  // console.log('Create family with id:', idFamily);
   isOpenCreateFamilyModal.value = true;
 }
 
@@ -87,7 +87,8 @@ function onModalClos(typeModal: string) {
   <CreateFamilyModal v-if="isOpenCreateFamilyModal" title="Новая семья" :families="families" :idFamily="newFamilyId"
     @attachFamily="onAttachFamily" @modal-close="onModalClos('CreateFamilyModal')" />
   <CreateFamilyModal v-if="isOpenEditFamilyModal" title="Редактирование семьи" :families="families"
-    :idFamily="chosenFamilyId" @attachFamily="onAttachFamily" @modal-close="onModalClos('EditFamilyModal')" />
+    :idFamily="chosenFamilyId" @attachFamily="onAttachFamily" @deductFamily="onDeductFamily"
+    @modal-close="onModalClos('EditFamilyModal')" />
 </template>
 
 <style lang="scss">

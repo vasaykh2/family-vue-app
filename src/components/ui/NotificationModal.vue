@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 const emit = defineEmits(['handle-act', 'notification-close']);
 const inputValue = ref(props.name);
+const name = ref(props.name.split("FROM DEDUCT ON EDIT MODAL")[0]);
 
 function handleInput(event: any) {
   // console.log('event.target.value', event.target.value)
@@ -27,6 +28,7 @@ function handleAct() {
   // console.log('NotificationModal', inputValue.value)
   if (inputValue.value.length) {
     const message = { type: props.type, role: props.role, inputValue: inputValue.value }
+    // console.log('in NotificationModal message:', message)
     emit('handle-act', message)
   }
 }
@@ -34,7 +36,8 @@ function handleAct() {
 function closeModal(e: any) {
   e.stopPropagation();
   const closeButton = e.target.closest('[data-close="true"]');
-  if (closeButton || e.target === e.currentTarget) {
+  const pushCloseButton = e.target.closest('[data-push-close="true"]');
+  if (pushCloseButton || closeButton || e.target === e.currentTarget) {
     emit('notification-close');
   }
 }
@@ -54,11 +57,15 @@ function closeModal(e: any) {
           </svg>
         </div>
       </div>
-      <div class="text-wrapper">
+      <div v-if="props.type === 'attach'" class="text-wrapper">
         <p class="text">
-          Будет создан новый контакт с установленной ролью: <span>{{ props.role === 'Ребёнок' ? '«Ребёнок»' :
-            '«Родитель»'
-            }}</span>
+          Будет создан новый контакт с установленной ролью:
+          <span>{{ props.role === 'Ребёнок' ? '«Ребёнок»' : '«Родитель»' }}</span>
+        </p>
+      </div>
+      <div v-if="props.type === 'deduct'" class="text-wrapper">
+        <p class="text">
+          Вы уверены, что хотите открепить контакт <span>{{ name }}</span> от семьи?
         </p>
       </div>
       <div v-if="props.type === 'attach'" class="wrapper-search-wrapper">
@@ -76,7 +83,7 @@ function closeModal(e: any) {
         </button>
       </div>
       <div v-if="props.type === 'deduct'" class="wrapper-deduct-family">
-        <button id="no-deduct-family" class="no-deduct-family" @click="closeModal">
+        <button id="no-deduct-family" class="no-deduct-family" data-push-close="true" @click="closeModal">
           <span>Нет</span>
         </button>
         <button id="yes-deduct-family" class="yes-deduct-family" @click="handleAct">
@@ -143,6 +150,9 @@ function closeModal(e: any) {
 }
 
 .text-wrapper {
+  display: flex;
+  justify-content: center;
+  align-content: center;
   width: 100%;
   height: 40px;
   font-size: 15px;
@@ -153,6 +163,7 @@ function closeModal(e: any) {
   margin: 0;
 
   .text {
+    text-align: start;
     margin: 0;
 
     span {
@@ -269,6 +280,52 @@ function closeModal(e: any) {
   .attach-family.deduct:hover {
     background-color: #E5E5E5;
   }
+}
 
+.wrapper-deduct-family {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+
+  .no-deduct-family {
+    width: 130px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #EBEBEB;
+    border-radius: 3px;
+    border: none;
+
+    span {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 20px;
+      font-family: 'PT Sans', sans-serif;
+      color: #000;
+      padding: 0;
+    }
+  }
+
+  .yes-deduct-family {
+    width: 130px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #366AF3;
+    border-radius: 3px;
+    border: none;
+
+    span {
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 20px;
+      font-family: 'PT Sans', sans-serif;
+      color: #fff;
+      padding: 0;
+    }
+  }
 }
 </style>

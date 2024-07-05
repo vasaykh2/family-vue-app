@@ -23,9 +23,9 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['attachFamily', 'viewContacts', 'createFamily', 'modal-close']);
 
-const contentRef = ref<HTMLDivElement>();
-function handleAttachFamily(familyId: string) {
-  emit('attachFamily', familyId);
+function handleAttachFamily(family: Family) {
+  console.log(family)
+  emit('attachFamily', family);
 }
 
 function handleViewContacts(memberId: string) {
@@ -110,7 +110,7 @@ function closeModal(e: any) {
             </div>
             <div class="add-family-button">
               <AddDeductButton type='add' title="Прикрепить" :limit="10" :loading="false"
-                @click="handleAttachFamily(family.idFamily)" />
+                @click="handleAttachFamily(family)" />
             </div>
           </div>
         </div>
@@ -246,7 +246,7 @@ function closeModal(e: any) {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-right: 12px;
 
   &::-webkit-scrollbar {
